@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from pathlib import Path
+import matplotlib.pyplot as plt
 
 # ==============================================================================
 # FASE 0: CONFIGURAZIONE E CARICAMENTO DATI (BASE)
@@ -181,3 +182,63 @@ print("\n--- FASE 1 COMPLETATA: DataFrame Numerico Pronto ---")
 print("Questo DataFrame contiene i dati puliti e le differenze Favorevole-Sfavorevole.")
 print("\nEsempio di Dati (Numerici):")
 print(data_numerica_pronta.head())
+
+# ==============================================================================
+# FASE 2: EDA (ANALISI ESPLORATIVA DEI DATI)
+# ==============================================================================
+
+print("\n--- FASE 2 INIZIO: Analisi Esplorativa dei Dati (EDA) ---")
+
+# 1. Analisi della Variabile Target per Superficie
+print("\n1. Distribuzione Risultato (Vittoria/Sconfitta) per Superficie:")
+# Tabella di contingenza per capire la frequenza degli upset su diverse superfici
+contingency_table = pd.crosstab(
+    data_numerica_pronta['Superficie'], 
+    data_numerica_pronta['Risultato_Favorevole'], 
+    normalize='index'
+) * 100
+print(contingency_table.round(2))
+# Visualizzazione per confermare l'importanza di 'Superficie'
+contingency_table.plot(kind='bar', figsize=(8, 5))
+plt.title('Percentuale di Vittorie e Sconfitte del Favorito per Superficie')
+plt.ylabel('Percentuale')
+plt.show() # Triggers the display of the plot
+
+# 2. Analisi della Distribuzione delle Differenze (per la Discretizzazione)
+COLS_TO_ANALYZE = ['Diff_Rank', 'Diff_Ace', 'Diff_ServiceWinPerc']
+plt.figure(figsize=(15, 5))
+
+for i, col in enumerate(COLS_TO_ANALYZE):
+    plt.subplot(1, 3, i + 1)
+    # Istogramma della distribuzione
+    data_numerica_pronta[col].hist(bins=30, edgecolor='black', alpha=0.7)
+    
+    # Calcolo di media e mediana per orientamento
+    median_val = data_numerica_pronta[col].median()
+    
+    plt.axvline(median_val, color='red', linestyle='dashed', linewidth=1, label=f'Mediana: {median_val:.2f}')
+    plt.title(f'Distribuzione di {col}')
+    plt.xlabel(f'{col}')
+    plt.ylabel('Frequenza')
+    plt.legend()
+
+plt.tight_layout()
+plt.show() # Triggers the display of the plot
+
+# 3. Analisi di Boxplot (Impatto su Risultato e Superficie)
+print("\n3. Analisi dell'impatto di Diff_ServiceWinPerc sul Risultato:")
+# Box plot per visualizzare come le statistiche si comportano quando il favorito perde (upset)
+plt.figure(figsize=(10, 6))
+import seaborn as sns # Si consiglia seaborn per boxplot eleganti
+# Installare seaborn se non presente: pip install seaborn
+sns.boxplot(
+    x='Superficie', 
+    y='Diff_ServiceWinPerc', 
+    hue='Risultato_Favorevole', 
+    data=data_numerica_pronta
+)
+plt.title('Diff_ServiceWinPerc (Fav - Sfav) per Superficie e Risultato')
+plt.ylabel('Differenza Percentuale Servizio')
+plt.show() # Triggers the display of the plot 
+
+print("\n--- FASE 2 COMPLETATA: Analisi Visiva Eseguita ---")
