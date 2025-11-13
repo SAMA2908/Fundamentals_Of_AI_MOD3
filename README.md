@@ -1,2 +1,1 @@
-# Fundamentals_Of_AI_MOD3
-Il progetto usa Reti Bayesiane per analizzare match ATP, confrontando l'impatto di Status (Ranking) e Performance (statistiche di gioco) sul Risultato. Integrando dati diversi, il modello mira a spiegare le vittorie a sorpresa (upset), quantificando l'importanza di Ace ed Errori in base alla superficie.
+Il progetto analizza match ATP con Reti Bayesiane, confrontando l'impatto di Status (Diff. Ranking) e Performance (Differenze in Ace, Doppi Falli e Punti Vinti al Servizio) sul Risultato. Studia le vittorie a sorpresa, misurando l'importanza delle metriche di servizio in base alla Superficie.
