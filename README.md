@@ -1,44 +1,61 @@
-Il progetto analizza match ATP con Reti Bayesiane, confrontando l'impatto di Status (Diff. Ranking) e Performance (Differenze in Ace, Doppi Falli e Punti Vinti al Servizio) sul Risultato. Studia le vittorie a sorpresa, misurando l'importanza delle metriche di servizio in base alla Superficie.
+# ATP Match Analysis with Bayesian Networks
 
+## Project Overview
+This project utilizes **Bayesian Networks** to analyze and predict the outcomes of ATP tennis matches from **2014 to 2024**. The primary objective is to understand the causal dynamics driving match results, with a specific focus on predicting "Upsets" (when the favorite loses).
 
-Questo progetto utilizza le Reti Bayesiane per analizzare i match di tennis ATP (dal 2014 al 2024). L'obiettivo è comprendere le dinamiche causali che portano a un risultato, con un focus particolare sulle "vittorie a sorpresa" (Upset).
+The model evaluates the impact of three macro-factors on the final result:
+1.  **Status (Ex-Ante):** Pre-match knowledge such as Ranking Difference, Age, and Height.
+2.  **Performance (Ex-Post):** Actual in-match statistics including Aces, Double Faults, and Service Points Won.
+3.  **Context:** Environmental factors, specifically the playing **Surface**.
 
-l modello confronta l'impatto di due macro-fattori sul risultato finale:
+## Project Structure
+The analysis compares four different probabilistic models built using the `pgmpy` library:
+* **Expert Model:** A causal graph manually defined based on tennis domain knowledge.
+* **Naive Bayes:** A statistical baseline assuming feature independence.
+* **Variant Model:** An expert model variant excluding physical attributes to test redundancy.
+* **Learned Model:** A structure learned automatically from the data using Hill Climbing Search.
 
-Status (Ex-Ante): Differenza di Ranking, Età, Altezza (informazioni note prima del match).
+---
 
-Performance (Ex-Post): Statistiche di gioco effettive come Ace, Doppi Falli e Punti Vinti al Servizio.
+## Execution Order
+To replicate the analysis, **you must execute the notebooks in the following logical order**, as the output of one file serves as the input for the next.
 
-Inoltre, viene misurata l'influenza del contesto (Superficie) 
+### 1. Data Preparation (`data_preparation.ipynb`)
+**Mandatory First Step.**
+* **Input:** Raw yearly datasets (`atp_matches_2014.csv` to `2024.csv`).
+* **Process:**
+    * Cleans the data and handles missing values.
+    * **Feature Engineering:** Computes differentials (e.g., Rank Diff, Ace Diff) and advanced features like `Fav_On_Worst_Surface` and `Fav_Recent_Form`.
+    * **Discretization:** Transforms continuous variables into categorical bins (e.g., Low/Medium/High) required for Discrete Bayesian Networks.
+    * **Splitting:** Performs a strict time-series split:
+        * *Training:* 2014-2023
+        * *Testing:* 2024
+* **Output:** Generates the cleaned files in the `processed_data/` directory (`atp_matches_training.csv`, `atp_matches_test_2024.csv`).
 
+### 2. Exploratory Data Analysis (`exploratory_analysis.ipynb`)
+**Optional but Recommended.**
+* **Input:** The processed data files generated in Step 1.
+* **Process:**
+    * Visualizes feature distributions (Win/Loss correlations).
+    * Analyzes physical stats and ranking impact.
+    * **Data Drift Check:** Crucial step to verify statistical consistency between the Training years and the Test year (2024).
 
-Per analisi, eseguire i file nel seguente ordine logico 
+### 3. Bayesian Modeling (`bayesian_models.ipynb`)
+**Final Analysis Step.**
+* **Input:** The processed data files generated in Step 1.
+* **Process:**
+    * Constructs the four Bayesian Network topologies.
+    * Learns parameters (CPDs) using Maximum Likelihood Estimation.
+    * **Validation:** Evaluates accuracy against the 2024 season ground truth.
+    * **Inference & Scenarios:** Performs "What-If" analysis (e.g., "How does the probability of winning change if a Strong Favorite plays on their worst surface?").
 
-1. data_preparation.ipynb
-Cosa fa: Carica i dataset grezzi (atp_matches_*.csv), gestisce i dati mancanti, calcola le nuove feature (es. Fav_On_Worst_Surface, Fav_Recent_Form) e discretizza le variabili numeriche.
+---
 
-Metodologia: Applica uno split temporale rigoroso:
+## Installation & Requirements
 
-Training: 2014-2023
+1.  Clone the repository.
+2.  Ensure you have Python 3.10+ installed.
+3.  Install the dependencies using the provided `requirements.txt` file:
 
-Test: 2024 (i bin di discretizzazione vengono calcolati sul Train e applicati al Test per evitare Data Leakage).
-
-Output: Genera i file puliti in processed_data/.
-
-2. exploratory_analysis.ipynb (EDA)
-Cosa fa: Analisi visiva dei dati.
-
-Obiettivo: Verificare la qualità del dataset, analizzare la distribuzione delle vittorie e controllare il "Data Drift" (coerenza statistica) tra gli anni di training e l'anno di test (2024).
-
-3. bayesian_models.ipynb
-Cosa fa: Costruisce, addestra e valuta diversi modelli di Rete Bayesiana utilizzando la libreria pgmpy.
-
-Modelli confrontati:
-
-Expert Model: Struttura definita manualmente basata sulla conoscenza del tennis.
-
-Naive Bayes: Baseline statistica.
-
-Learned Model: Struttura appresa automaticamente dai dati (Hill Climbing Search).
-
-Output: Accuratezza sul test set 2024 e analisi di scenari condizionali (es. "Come cambia la probabilità di vittoria se il favorito gioca sulla sua superficie peggiore?").
+```bash
+pip install -r requirements.txt
